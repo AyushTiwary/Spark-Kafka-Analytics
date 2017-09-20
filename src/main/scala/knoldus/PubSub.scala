@@ -1,7 +1,7 @@
-package nD
+package knoldus
 
 import java.sql.Timestamp
-import nD.GlobalObject.{mySchema, spark}
+import knoldus.GlobalObject.{mySchema, spark}
 import org.apache.spark.sql.functions._
 
 object PubSub extends App {
@@ -38,10 +38,19 @@ object PubSub extends App {
     .select(from_json($"value", mySchema).as("data"), $"timestamp")
     .select("data.*", "timestamp")
 
-  df1.writeStream
+    val result1 = df1.groupBy().agg(sum("duration").as("sum"), min("duration").as("min"), max("duration").as("max"),
+    avg("duration").as("average"))
+
+/*  result1.writeStream
+    .format("console")
+    .option("truncate","false")
+    .start()
+    .awaitTermination()*/
+
+/*  df1.writeStream
     .format("console")
     .option("truncate", "false")
     .start()
-    .awaitTermination()
+    .awaitTermination()*/
 
 }

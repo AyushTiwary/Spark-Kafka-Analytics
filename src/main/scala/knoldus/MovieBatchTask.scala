@@ -1,6 +1,6 @@
-package nD
+package knoldus
 
-import nD.GlobalObject._
+import knoldus.GlobalObject._
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions._
 
