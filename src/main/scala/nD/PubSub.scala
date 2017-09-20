@@ -1,5 +1,6 @@
 package nD
 
+import java.sql.Timestamp
 import nD.GlobalObject.{mySchema, spark}
 import org.apache.spark.sql.functions._
 
@@ -25,6 +26,7 @@ object PubSub extends App {
    * Function to rend the data from Kafka to streaming DataFrame
    * */
   import spark.implicits._
+
   val df = spark
     .readStream
     .format("kafka")
@@ -32,13 +34,14 @@ object PubSub extends App {
     .option("subscribe", "movieData")
     .load()
 
-  val df1 = df.selectExpr("CAST(value AS STRING) as json")
-    .select(from_json($"json", mySchema).as("data"))
-    .select("data.*")
+  val df1 = df.selectExpr("CAST(value AS STRING)", "CAST(timestamp AS TIMESTAMP)").as[(String, Timestamp)]
+    .select(from_json($"value", mySchema).as("data"), $"timestamp")
+    .select("data.*", "timestamp")
 
   df1.writeStream
     .format("console")
-      .option("truncate","false")
+    .option("truncate", "false")
     .start()
     .awaitTermination()
+
 }
